@@ -1,6 +1,7 @@
 package turtleController
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/olahol/melody"
 	log "github.com/sirupsen/logrus"
@@ -8,7 +9,8 @@ import (
 )
 
 type Command struct {
-	Lua string
+	Action string
+	Code   string
 }
 
 type TurtleInfo struct {
@@ -38,15 +40,20 @@ func New() *TurtleController {
 	return controller
 }
 
-func (ctrl *TurtleController) RunCommand(turtleID string, command Command) (string, error) {
+func (ctrl *TurtleController) SendCommand(turtleID string, command Command) (string, error) {
 	turtle, exists := ctrl.turtles[turtleID]
 	if !exists {
 		return "", fmt.Errorf("no turtle with ID '%s'", turtleID)
 	}
 
-	log.Infof("running commmand '%s'", command.Lua)
-	err := turtle.ws.Write([]byte(command.Lua))
+	log.Infof("Sending commmand '%s'", command.Code)
+
+	message, err := json.Marshal(command)
 	if err != nil {
+		return "", err
+	}
+
+	if err := turtle.ws.Write(message); err != nil {
 		return "", err
 	}
 

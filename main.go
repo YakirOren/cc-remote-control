@@ -29,7 +29,7 @@ func RunCommand(tc *turtleController.TurtleController) func(c *gin.Context) {
 			return
 		}
 
-		response, err := tc.RunCommand(turtleID, command)
+		response, err := tc.SendCommand(turtleID, command)
 		if err != nil {
 			log.Error(err)
 			c.String(http.StatusInternalServerError, "running command '%s' failed: %w", command, err)
