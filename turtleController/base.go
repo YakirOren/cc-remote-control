@@ -40,6 +40,18 @@ func New() *TurtleController {
 	return controller
 }
 
+func Keys[M ~map[K]V, K comparable, V any](m M) []K {
+	r := make([]K, 0, len(m))
+	for k := range m {
+		r = append(r, k)
+	}
+	return r
+}
+
+func (ctrl *TurtleController) GetConnected() []string {
+	return Keys(ctrl.turtles)
+}
+
 func (ctrl *TurtleController) SendCommand(turtleID string, command Command) (string, error) {
 	turtle, exists := ctrl.turtles[turtleID]
 	if !exists {

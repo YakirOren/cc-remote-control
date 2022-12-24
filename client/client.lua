@@ -29,7 +29,7 @@ function websocketloop()
   local id = file.readAll()
   file.close()
 
-  local ws, err = http.websocket("ws://d282-2a00-a040-190-9051-5fb-c9f1-24c6-4aef.ngrok.io/ws", {["User-Agent"] = id})
+  local ws, err = http.websocket("ws://8fb0-213-57-44-10.ngrok.io/ws", {["User-Agent"] = id})
   if err then
     print(err)
     os.sleep(30)

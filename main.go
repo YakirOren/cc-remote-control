@@ -14,8 +14,15 @@ func main() {
 
 	r.POST("/command", RunCommand(tc))
 	r.GET("/ws", CreateWebsocket(tc))
+	r.GET("/sessions", getConnected(tc))
 
 	r.Run(":4000")
+}
+
+func getConnected(tc *turtleController.TurtleController) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, tc.GetConnected())
+	}
 }
 
 func RunCommand(tc *turtleController.TurtleController) func(c *gin.Context) {
