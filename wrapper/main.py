@@ -9,7 +9,7 @@ def main():
 
     t = Turtle("http://localhost:4000", turtles[0])
 
-    t.forward(10)
+    t.forward(3)
 
     t.undo_all()
 
