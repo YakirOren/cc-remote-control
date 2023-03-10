@@ -1,13 +1,11 @@
-package turtleController
+package controller
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/olahol/melody"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"sync"
 )
 
 type Command struct {
@@ -15,43 +13,8 @@ type Command struct {
 	Code   string
 }
 
-type TurtleInfo struct {
-	ws        *melody.Session
-	responses chan string
-}
-
-type TurtleController struct {
-	Melody       *melody.Melody
-	turtles      map[string]TurtleInfo
-	turtleLock   *sync.Mutex
-	responseLock *sync.Mutex
-}
-
-func New() *TurtleController {
-	m := melody.New()
-	controller := &TurtleController{
-		Melody:     m,
-		turtles:    make(map[string]TurtleInfo),
-		turtleLock: new(sync.Mutex),
-	}
-
-	m.HandleConnect(controller.HandleConnect)
-	m.HandleDisconnect(controller.HandleDisconnect)
-	m.HandleMessage(controller.HandleMessage)
-
-	return controller
-}
-
-func Keys[M ~map[K]V, K comparable, V any](m M) []K {
-	r := make([]K, 0, len(m))
-	for k := range m {
-		r = append(r, k)
-	}
-	return r
-}
-
-func (ctrl *TurtleController) SendCommand(turtleID string, command Command) (string, error) {
-	turtle, exists := ctrl.turtles[turtleID]
+func (tc *TurtleController) SendCommand(turtleID string, command Command) (string, error) {
+	turtle, exists := tc.turtles[turtleID]
 	if !exists {
 		return "", fmt.Errorf("no turtle with ID '%s'", turtleID)
 	}
@@ -71,12 +34,32 @@ func (ctrl *TurtleController) SendCommand(turtleID string, command Command) (str
 
 }
 
+// GetConnected godoc
+// @Summary get active sessions
+// @Schemes
+// @Description get active sessions
+// @Tags session
+// @Accept json
+// @Produce json
+// @Success 200 {array} string "array of connected turtle IDs"
+// @Router /api/v1/sessions [get]
 func (tc *TurtleController) GetConnected(c *gin.Context) {
 	c.JSON(http.StatusOK, Keys(tc.turtles))
+
 }
 
+// RunCommand godoc
+// @Summary run command
+// @Schemes
+// @Description send command to turtle
+// @Param id query string true "ID"
+// @Param command body Command true "commmand to send" Command{} Command{Action: "eval", Code: "ls"}
+// @Tags session
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "response from the turtle"
+// @Router /api/v1/command [post]
 func (tc *TurtleController) RunCommand(c *gin.Context) {
-
 	turtleID, _ := c.GetQuery("id")
 
 	var command Command
@@ -95,8 +78,4 @@ func (tc *TurtleController) RunCommand(c *gin.Context) {
 
 	c.String(http.StatusOK, response)
 
-}
-
-func (tc *TurtleController) CreateWebsocket(c *gin.Context) {
-	tc.Melody.HandleRequest(c.Writer, c.Request)
 }

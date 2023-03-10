@@ -1,0 +1,61 @@
+basePath: /
+definitions:
+  turtleController.Command:
+    properties:
+      action:
+        type: string
+      code:
+        type: string
+    type: object
+host: localhost:4000
+info:
+  contact: {}
+  description: This server controls computer craft turtles.
+  title: Turtle C2 API
+  version: "1.0"
+paths:
+  /api/v1/command:
+    post:
+      consumes:
+      - application/json
+      description: send command to turtle
+      parameters:
+      - description: ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: commmand to send
+        in: body
+        name: command
+        required: true
+        schema:
+          $ref: '#/definitions/turtleController.Command'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response from the turtle
+          schema:
+            type: string
+      summary: run command
+      tags:
+      - session
+  /api/v1/sessions:
+    get:
+      consumes:
+      - application/json
+      description: get active sessions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: array of connected turtle IDs
+          schema:
+            items:
+              type: string
+            type: array
+      summary: get active sessions
+      tags:
+      - session
+swagger: "2.0"

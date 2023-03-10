@@ -38,14 +38,17 @@ class Turtle:
             self.undo()
 
     def run_command(self, command: str) -> Union[bool, str]:
-        is_success = self.execute_action("eval", f"return {command}")
-        if is_success:
-            if command in self.command_map and not self.is_undo:
-                self.movement_commands.append(command)
+        response = self.execute_action("eval", f"return {command}")
 
-        return is_success
+        if not response:
+            return False
 
-    def execute_action(self, action: str, code: str) -> Union[bool, str]:
+        if command in self.command_map and not self.is_undo:
+            self.movement_commands.append(command)
+
+        return response
+
+    def execute_action(self, action: str, code: str) -> str:
         r = requests.post(self.command_url, params={"id": self.turtle_id},
                           json={"Action": action, "Code": code})
 
@@ -63,7 +66,7 @@ class Turtle:
     def command_url(self):
         return f"{self.cnc_server_url}/command"
 
-    def shell(self, command: str) -> bool:
+    def shell(self, command: str) -> str:
         return self.execute_action("shell", command)
 
     def run_command_n(self, command: str, times: int) -> bool:
@@ -101,6 +104,7 @@ class Turtle:
     def turn_right(self) -> bool:
         return self.run_command("turtle.turnRight()")
 
+    @staticmethod
     def command(func):
         def command_wrapper(self):
             return self.run_command(func(self))

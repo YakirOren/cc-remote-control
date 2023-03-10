@@ -26,12 +26,15 @@
 
 ### Interface with the server using the python wrapper:
 * the cnc server is running localy on port 4000.
+
 ```python
     from ccturtle import Turtle
     t = Turtle("http://localhost:4000", "c2d35786-e28a-4fff-bf82-a94c40f5fcff")
 
-    t.forward()
-    t.forward()
+    t.forward(5)
+    t.turnLeft()
+    t.forward(5)
+    t.undo()
 ```
 
 ## Working example:
