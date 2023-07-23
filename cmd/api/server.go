@@ -1,11 +1,12 @@
 package main
 
 import (
+	"turtle/controller"
+	_ "turtle/docs"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"turtle/controller"
-	_ "turtle/docs"
 )
 
 // @title Turtle C2 API
@@ -27,7 +28,7 @@ func main() {
 
 	handleSwagger(app)
 
-	app.Run(":4000")
+	app.Run(":8080")
 }
 
 func handleSwagger(app *gin.Engine) {
