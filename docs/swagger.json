@@ -6,7 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:4000",
     "basePath": "/",
     "paths": {
         "/api/v1/command": {
@@ -31,13 +30,39 @@
                         "required": true
                     },
                     {
-                        "description": "commmand to send",
+                        "description": "command to send",
                         "name": "command",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/turtleController.Command"
+                            "$ref": "#/definitions/controller.Command"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "response from the turtle",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/disconnect": {
+            "delete": {
+                "description": "disconnect turtle",
+                "tags": [
+                    "session"
+                ],
+                "summary": "disconnect",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -78,7 +103,7 @@
         }
     },
     "definitions": {
-        "turtleController.Command": {
+        "controller.Command": {
             "type": "object",
             "properties": {
                 "action": {

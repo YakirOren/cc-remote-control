@@ -1,13 +1,12 @@
 basePath: /
 definitions:
-  turtleController.Command:
+  controller.Command:
     properties:
       action:
         type: string
       code:
         type: string
     type: object
-host: localhost:4000
 info:
   contact: {}
   description: This server controls computer craft turtles.
@@ -25,12 +24,12 @@ paths:
         name: id
         required: true
         type: string
-      - description: commmand to send
+      - description: command to send
         in: body
         name: command
         required: true
         schema:
-          $ref: '#/definitions/turtleController.Command'
+          $ref: '#/definitions/controller.Command'
       produces:
       - application/json
       responses:
@@ -39,6 +38,23 @@ paths:
           schema:
             type: string
       summary: run command
+      tags:
+      - session
+  /api/v1/disconnect:
+    delete:
+      description: disconnect turtle
+      parameters:
+      - description: ID
+        in: query
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: response from the turtle
+          schema:
+            type: string
+      summary: disconnect
       tags:
       - session
   /api/v1/sessions:

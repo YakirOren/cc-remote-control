@@ -25,12 +25,13 @@ func (tc *TurtleController) HandleConnect(s *melody.Session) {
 	}
 
 	tc.turtleLock.Unlock()
-	log.Infof("New turtle connected with ID: %s", turtleID)
+	log.Infof("turtle connected with ID: %s", turtleID)
 }
 
 func (tc *TurtleController) HandleMessage(s *melody.Session, msg []byte) {
 	turtleID := s.Request.Header.Get("User-Agent")
 
 	turtle := tc.turtles[turtleID]
+
 	turtle.responses <- string(msg)
 }

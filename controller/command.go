@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"maps"
 	"net/http"
+	"slices"
 )
 
 type Command struct {
@@ -13,7 +15,7 @@ type Command struct {
 	Code   string
 }
 
-func (tc *TurtleController) SendCommand(turtleID string, command Command) (string, error) {
+func (tc *TurtleController) sendCommand(turtleID string, command Command) (string, error) {
 	turtle, exists := tc.turtles[turtleID]
 	if !exists {
 		return "", fmt.Errorf("no turtle with ID '%s'", turtleID)
@@ -35,30 +37,31 @@ func (tc *TurtleController) SendCommand(turtleID string, command Command) (strin
 }
 
 // GetConnected godoc
-// @Summary get active sessions
-// @Schemes
-// @Description get active sessions
-// @Tags session
-// @Accept json
-// @Produce json
-// @Success 200 {array} string "array of connected turtle IDs"
-// @Router /api/v1/sessions [get]
+//
+//	@Summary	get active sessions
+//	@Schemes
+//	@Description	get active sessions
+//	@Tags			session
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{array}	string	"array of connected turtle IDs"
+//	@Router			/api/v1/sessions [get]
 func (tc *TurtleController) GetConnected(c *gin.Context) {
-	c.JSON(http.StatusOK, Keys(tc.turtles))
-
+	c.JSON(http.StatusOK, slices.Collect(maps.Keys(tc.turtles)))
 }
 
 // RunCommand godoc
-// @Summary run command
-// @Schemes
-// @Description send command to turtle
-// @Param id query string true "ID"
-// @Param command body Command true "commmand to send" Command{} Command{Action: "eval", Code: "ls"}
-// @Tags session
-// @Accept json
-// @Produce json
-// @Success 200 {string} string "response from the turtle"
-// @Router /api/v1/command [post]
+//
+//	@Summary	run command
+//	@Schemes
+//	@Description	send command to turtle
+//	@Param			id		query	string	true	"ID"
+//	@Param			command	body	Command	true	"command to send"	Command{}	Command{Action: "eval", Code: "ls"}
+//	@Tags			session
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{string}	string	"response from the turtle"
+//	@Router			/api/v1/command [post]
 func (tc *TurtleController) RunCommand(c *gin.Context) {
 	turtleID, _ := c.GetQuery("id")
 
@@ -69,7 +72,7 @@ func (tc *TurtleController) RunCommand(c *gin.Context) {
 		return
 	}
 
-	response, err := tc.SendCommand(turtleID, command)
+	response, err := tc.sendCommand(turtleID, command)
 	if err != nil {
 		log.Error(err)
 		c.String(http.StatusInternalServerError, "running command '%s' failed: %w", command, err)
@@ -78,4 +81,25 @@ func (tc *TurtleController) RunCommand(c *gin.Context) {
 
 	c.String(http.StatusOK, response)
 
+}
+
+// Disconnect godoc
+//
+//	@Summary	disconnect
+//	@Schemes
+//	@Description	disconnect turtle
+//	@Param			id	query	string	true	"ID"
+//	@Tags			session
+//	@Success		200	{string}	string	"response from the turtle"
+//	@Router			/api/v1/disconnect [delete]
+func (tc *TurtleController) Disconnect(c *gin.Context) {
+	turtleID, _ := c.GetQuery("id")
+
+	err := tc.turtles[turtleID].ws.Close()
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.String(http.StatusOK, "Successfully disconnected turtle '%s'", turtleID)
 }
